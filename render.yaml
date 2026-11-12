@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: organise-todo-api
+    name: todo-api
     runtime: node
     plan: free
     buildCommand: npm install
