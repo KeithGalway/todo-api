@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: todo-api
+    name: todo-api-legacy
     runtime: node
     plan: free
     buildCommand: npm install
