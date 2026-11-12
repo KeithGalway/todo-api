@@ -8,6 +8,7 @@ const { requireApiToken } = require('./auth')
 
 const app = express()
 const port = process.env.PORT || 10000
+const databaseName = 'Todo'
 const allowedOrigins = (process.env.CLIENT_ORIGIN || '')
     .split(',')
     .map((origin) => origin.trim())
@@ -159,7 +160,7 @@ async function start() {
     if (Buffer.byteLength(process.env.TODO_API_TOKEN || '') < 32) {
         throw new Error('TODO_API_TOKEN must contain at least 32 characters.')
     }
-    await mongoose.connect(process.env.MONGODB_URI)
+    await mongoose.connect(process.env.MONGODB_URI, { dbName: databaseName })
     app.listen(port, () => console.log(`Todo API listening on port ${port}`))
 }
 

@@ -1,6 +1,6 @@
 # Organise Todo API
 
-A small REST API that stores the Personal Organiser todo list in MongoDB.
+A small REST API that stores the Personal Organiser todo list in the MongoDB database `Todo`, collection `todos`.
 
 ## Run locally
 
