@@ -4,6 +4,7 @@ const cors = require('cors')
 const express = require('express')
 const helmet = require('helmet')
 const mongoose = require('mongoose')
+const { requireApiToken } = require('./auth')
 
 const app = express()
 const port = process.env.PORT || 10000
@@ -26,6 +27,8 @@ app.use(cors({
     origin: (origin, callback) => callback(null, !origin || allowedOrigins.includes(origin))
 }))
 app.use(express.json({ limit: '16kb' }))
+
+app.use('/api/todos', requireApiToken)
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' })
@@ -152,6 +155,9 @@ function parseDueDate(value) {
 async function start() {
     if (!process.env.MONGODB_URI) {
         throw new Error('MONGODB_URI is required.')
+    }
+    if (Buffer.byteLength(process.env.TODO_API_TOKEN || '') < 32) {
+        throw new Error('TODO_API_TOKEN must contain at least 32 characters.')
     }
     await mongoose.connect(process.env.MONGODB_URI)
     app.listen(port, () => console.log(`Todo API listening on port ${port}`))
