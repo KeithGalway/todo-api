@@ -6,10 +6,11 @@ A small REST API that stores the Personal Organiser todo list in the MongoDB dat
 
 1. Install Node.js 20 or newer.
 2. Run `npm install`.
-3. Copy `.env.example` to `.env` and set `MONGODB_URI` to a MongoDB connection string.
-4. Generate a strong token with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` and set it as `TODO_API_TOKEN`.
-5. Set `CLIENT_ORIGIN` to the frontend origin (comma-separated if there is more than one).
-6. Run `npm start`; the API listens on port `10000` by default.
+3. Set `MONGODB_URI` to a MongoDB connection string.
+4. Create a Clerk application and set `CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY`.
+5. Sign in to the app once, then set `TODO_OWNER_USER_ID` to your Clerk user ID. Only this account can access the todo list.
+6. Set `CLIENT_ORIGIN` to the frontend origin (comma-separated if there is more than one).
+7. Run `npm start`; the API listens on port `10000` by default.
 
 ## Endpoints
 
@@ -19,12 +20,12 @@ A small REST API that stores the Personal Organiser todo list in the MongoDB dat
 - `PATCH /api/todos/:id` updates one or more task fields.
 - `DELETE /api/todos/:id` removes a task.
 
-All `/api/todos` routes require `Authorization: Bearer <TODO_API_TOKEN>`. Tasks include MongoDB `_id`, `createdAt`, and `updatedAt` fields. The API validates user-provided fields and only allows the configured client origins.
+All `/api/todos` routes require a valid Clerk session, and only the user configured by `TODO_OWNER_USER_ID` can access the shared list. Tasks include MongoDB `_id`, `createdAt`, and `updatedAt` fields. The API validates user-provided fields and only allows the configured client origins.
 
-## Access control
+## Sign-in
 
-The API requires a random token of at least 32 characters for every todo operation. Keep it private: enter the same token into the todo page when unlocking your list. CORS is an additional browser restriction, not a replacement for the token.
+Configure Google sign-in, passkeys, and email sign-in in the Clerk Dashboard. The Organise app uses Clerk's hosted sign-in UI, which supports mobile browsers and passkeys such as Face ID on compatible iPhones. CORS is an additional browser restriction, not a replacement for authentication.
 
 ## Deploy to Render
 
-Create a Render Web Service from this repository and use the included `render.yaml` Blueprint settings. Set the prompted `MONGODB_URI`, `TODO_API_TOKEN`, and `CLIENT_ORIGIN` environment variables in Render. For `CLIENT_ORIGIN`, use the exact deployed frontend origin (scheme and hostname, without a trailing slash). Set the API's Render URL as `REACT_APP_TODO_API_URL` in the frontend build environment and rebuild the frontend. Enter the `TODO_API_TOKEN` in the todo page to unlock the list; it is kept only in the current page session.
+Create a Render Web Service from this repository and use the included `render.yaml` Blueprint settings. Set `MONGODB_URI`, `CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `TODO_OWNER_USER_ID`, and `CLIENT_ORIGIN` in Render. For `CLIENT_ORIGIN`, use the exact deployed frontend origin (scheme and hostname, without a trailing slash). Set the API's Render URL as `REACT_APP_TODO_API_URL` and the Clerk publishable key as `REACT_APP_CLERK_PUBLISHABLE_KEY` in the Organise frontend build environment, then rebuild the app. No shared API token is needed.

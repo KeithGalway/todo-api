@@ -9,7 +9,11 @@ services:
     envVars:
       - key: MONGODB_URI
         sync: false
-      - key: TODO_API_TOKEN
+      - key: CLERK_PUBLISHABLE_KEY
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: TODO_OWNER_USER_ID
         sync: false
       - key: CLIENT_ORIGIN
         sync: false

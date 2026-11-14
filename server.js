@@ -4,7 +4,8 @@ const cors = require('cors')
 const express = require('express')
 const helmet = require('helmet')
 const mongoose = require('mongoose')
-const { requireApiToken } = require('./auth')
+const { clerkMiddleware } = require('@clerk/express')
+const { requireOwner } = require('./auth')
 
 const app = express()
 const port = process.env.PORT || 10000
@@ -29,7 +30,7 @@ app.use(cors({
 }))
 app.use(express.json({ limit: '16kb' }))
 
-app.use('/api/todos', requireApiToken)
+app.use('/api/todos', clerkMiddleware(), requireOwner)
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' })
@@ -157,8 +158,14 @@ async function start() {
     if (!process.env.MONGODB_URI) {
         throw new Error('MONGODB_URI is required.')
     }
-    if (Buffer.byteLength(process.env.TODO_API_TOKEN || '') < 32) {
-        throw new Error('TODO_API_TOKEN must contain at least 32 characters.')
+    if (!process.env.CLERK_PUBLISHABLE_KEY) {
+        throw new Error('CLERK_PUBLISHABLE_KEY is required.')
+    }
+    if (!process.env.CLERK_SECRET_KEY) {
+        throw new Error('CLERK_SECRET_KEY is required.')
+    }
+    if (!process.env.TODO_OWNER_USER_ID) {
+        throw new Error('TODO_OWNER_USER_ID is required.')
     }
     await mongoose.connect(process.env.MONGODB_URI, { dbName: databaseName })
     app.listen(port, () => console.log(`Todo API listening on port ${port}`))
